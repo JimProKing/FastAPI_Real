@@ -36,7 +36,7 @@ class Todo(BaseModel):
 ```
 
 ### pydantic 중첩 모델
-```
+```model.py
 class Item(BaseModel):
     Item: str
     status: str
