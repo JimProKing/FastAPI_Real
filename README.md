@@ -26,11 +26,22 @@ curl -X POST http://127.0.0.1:8000/todo \
 - model.py 만들고, 코드 추가해서 유효성 검증 가능하도록 함.
   - todo.py(라우터)에서 import 해서 쓰면 됨
 
-- 클래스 정의
+### pydantic 클래스 정의
 ```model.py
 from pydantic Import BaseModel
 
 class Todo(BaseModel):
     id: int
     item: str
+```
+
+### pydantic 중첩 모델
+```
+class Item(BaseModel):
+    Item: str
+    status: str
+
+class Todo(BaseModel):
+    id: int
+    item: Item
 ```
