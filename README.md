@@ -1,52 +1,36 @@
-# LV1
-## 251231
-연말에 코딩하고 있는 내 모습이 레전드..
-fastapi 써보면서 뭐라도 해보자 
+# LV2 
+251231
 
+# 라우터
+> 서버로 전송된 요청을 처리하는 함수
+> 
+> ex) 서버로 전송된 요청을 처리
 
-### 
-> md 미리보기는 ```command + Shift + V``` 
-___
-### 브랜치 만들기
-```bash
-git checkout -b branch1
-```
-### 가상환경 만들기
-```bash
-mkdir todos && cd todos
-python3 -m venv venv
-# python3에는 기본적으로 venv 모듈 있음 (표준 라이브러리임)
-# 첫 venv: 
-# 두번째 venv: 가상환경으로 사용할 폴더명
-```
-> lib: 파이썬 인터프리터 설치
-> bin: 가상환경 내에서 상호작용 필요한 파일 
+### 기본 과정
+> 1. todo.py 작성
+> 2. api.py에 import 추가
+> ```from todo import todo_router```
 
-### 가상환경 활성화
+### GET 요청
+```curl -X GET http://127.0.0.1:8000/todo -H "accept:application/json"```
+### POST 요청
 ```
-source venv/bin/activate
-#비활성화: deactivate
+curl -X POST http://127.0.0.1:8000/todo \
+  -H "accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{"id": 1, "item": "First Todo is to finish this book!"}'
+```
+### pydantic 모델
+- 정의된 데이터만 전송되도록 바디를 검증
+``` from pydantic import BaseModel ```
+- model.py 만들고, 코드 추가해서 유효성 검증 가능하도록 함.
+  - todo.py(라우터)에서 import 해서 쓰면 됨
 
-```
+- 클래스 정의
+```model.py
+from pydantic Import BaseModel
 
-### fastAPI 설치
+class Todo(BaseModel):
+    id: int
+    item: str
 ```
-pip install fastapi
-```
-### 현재 프로젝트 설치된 패키지 목록 파일로 저장
-```
-freeze > requirement.txt
-```
-
-### requirements.txt 여기 있는 것들 다 설치
-```
-pip install -r requirements.txt
-```
-### 도커 설정
-> 컨테이너화 하면, 구성요소를 단일 이미지로 묶어 배포가 쉬워짐
-
-즉, 도커 == 컨테이너를 생성하고 관리하는 도구
-- Push: 도커 허브에 저장
-- Pull: 다시 추출
-
-
