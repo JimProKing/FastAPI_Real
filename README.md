@@ -50,4 +50,10 @@ pip install -r requirements.txt
 - Push: 도커 허브에 저장
 - Pull: 다시 추출
 
-
+### Uvicorn
+- 실제 HTTP 요청 받아서 처리하고 응답 보내주는 서버 (기본 서버)
+- Fastapi도 로직을 짜는 프레임워크일 뿐. 실제 서버가 필요함.
+- 기본 실행 방법
+```
+uvicorn main:app --reload
+```
