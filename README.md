@@ -1,6 +1,6 @@
-# FASTAPI_Real
+# LV1  
+251231
 
-# 251231
 연말에 코딩하고 있는 내 모습이 레전드..
 fastapi 써보면서 뭐라도 해보자 
 
@@ -49,4 +49,5 @@ pip install -r requirements.txt
 즉, 도커 == 컨테이너를 생성하고 관리하는 도구
 - Push: 도커 허브에 저장
 - Pull: 다시 추출
+
 
