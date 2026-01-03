@@ -1,3 +1,4 @@
+# 요청 주고받을 형식을 지정
 from pydantic import BaseModel
 
 class Item(BaseModel):
