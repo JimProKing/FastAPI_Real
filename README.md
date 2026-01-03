@@ -58,7 +58,7 @@ class Todo(BaseModel):
 ![alt text](image.png)
 이렇게 swagger 문서에 필수값, 설명 등등을 
 
-# get 요청 with 경로 매개변수 (todo.py)
+# get_single_todo
 ```python
 @todo_router.get("/todo/{todo_id}")
 async def get_single_todo(todo_id: int) -> dict:
@@ -76,4 +76,71 @@ async def get_single_todo(todo_id: int) -> dict:
 curl -X 'GET' \
 'http://127.0.0.1:8000/todo/1' \
 -H 'accept: application/json'
+```
+### ReDoc 문서
+ http://127.0.0.1:8000/redoc
+ 접속
+
+ # update_todo
+ ### 요청 바디 모델 (model.py)
+ ```python
+class TodoItem(BaseModel):
+    item: str
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "item": "예시 할 일"
+                }
+            ]   
+        }
+    }
+    ### 주의) pydantic 버전에 따라 형식이 다름
+ ```
+
+### 라우트 추가 (todo.py)
+```python
+from model import TodoItem
+# update를 위한 모델을 추가했으니, import
+
+todo_router = APIRouter()
+
+@todo_router.put("/todo/{todo_id}")
+async def update_todo(todo_data: TodoItem, todo_id: int = Path(..., Title="The ID of the todo to update")) -> dict:
+    for todo in todo_list:
+        if todo.id == todo_id:
+            todo.item = todo_data.item
+            return {
+                "message": "Todo updated successfully",
+            }
+    return {
+        "message": "Todo not found",
+    }
+```
+
+# delete_single_todo
+### 라우트 추가
+```python
+todo_router = APIRouter()
+
+@todo_router.delete("/todo/{todo_id}")
+async def delete_single_todo(todo_id: int)-> dict:
+    for index in range(len(todo_list)):
+        todo = todo_list[index]
+        if todo.id == todo_id:
+            todo_list.pop(index)
+            return {
+                "message": "Todo deleted successfully",
+            }
+    return {
+        "message": "Todo not found",
+    }
+
+@todo_router.delete("/todo")
+async def delete_all_todos() -> dict:
+    todo_list.clear()
+    return {
+        "message": "All todos deleted successfully",
+    }
 ```
