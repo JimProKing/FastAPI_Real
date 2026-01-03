@@ -1,146 +1,70 @@
-# LV2 
-251231
+# LV3
+260103
+### pydantic 사용
+서버에 전달된 요청을 기준으로 적절한 응답을 렌더링
+> 오류처리
+>> 상태코드 + 오류 메시지
 
-> **!! uvicorn 서버 시작법**
-> 
-> ```unicornn api:app --port 8000 --reload```
+### 상태코드 
+- 1: 받음
+- 2: 성공적 처리
+- 3: 리다이렉트
+- 4: 클라 오류
+- 5: 서버 오류 
 
-# 라우터
-> 서버로 전송된 요청을 처리하는 함수
-> 
-> ex) 서버로 전송된 요청을 처리
+### Mission: todo 배열에 저장된 모든 값이 아닌, todo 아이템만 반환하도록 (id 없이)
 
-### 기본 과정
-> 1. todo.py 작성 (여기서 라우터 만들거임)
-> 2. api.py에 import 추가
-> ```from todo import todo_router```
-
-### GET 요청
-```curl -X GET http://127.0.0.1:8000/todo -H "accept:application/json"```
-### POST 요청
+### response 지정하기
+```py
+@todo_router.get("/todo", response_model=TodoItems)
 ```
-curl -X POST http://127.0.0.1:8000/todo \
-  -H "accept: application/json" \
-  -H "Content-Type: application/json" \
-  -d '{"id": 1, "item": "First Todo is to finish this book!"}'
-```
-### pydantic 모델
-- 정의된 데이터만 전송되도록 바디를 검증
-``` from pydantic import BaseModel ```
-- model.py 만들고, 코드 추가해서 유효성 검증 가능하도록 함.
-  - todo.py(라우터)에서 import 해서 쓰면 됨
+이런식으로 response_model을 지정해줄 수 있음
 
-### pydantic 클래스 정의
-```model.py
-from pydantic Import BaseModel
+```py
+class TodoItems(BaseModel):
+    todos: List[TodoItem]
 
-class Todo(BaseModel):
-    id: int
-    item: str
-```
-
-### pydantic 중첩 모델
-```model.py
-class Item(BaseModel):
-    Item: str
-    status: str
-
-class Todo(BaseModel):
-    id: int
-    item: Item
-```
-* 중첩해서 사용 가능하다는 건 확인했지만, ```item: str```으로 계속 쓰자
-
-### 경로 매개변수
-```todo_router.post("/todo/{todo_id}")```
-
-### Path 파라미터
-![alt text](image.png)
-이렇게 swagger 문서에 필수값, 설명 등등을 
-
-# get_single_todo
-```python
-@todo_router.get("/todo/{todo_id}")
-async def get_single_todo(todo_id: int) -> dict:
-    for todo in todo_list:
-        if todo.id == todo_id:
-            return{
-                "todo":todo
-            }
-    return {
-        "message":"Todo not found"
-    }
-```
-### GET 요청으로 테스트
-```bash
-curl -X 'GET' \
-'http://127.0.0.1:8000/todo/1' \
--H 'accept: application/json'
-```
-### ReDoc 문서
- http://127.0.0.1:8000/redoc
- 접속
-
- # update_todo
- ### 요청 바디 모델 (model.py)
- ```python
-class TodoItem(BaseModel):
-    item: str
-
+# Pydantic v2 방식: model_config 사용
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
-                    "item": "예시 할 일"
+                    "todos": [
+                        {"item": "Example schema 1!"},
+                        {"item": "Example schema 2!"}
+                    ]
                 }
-            ]   
+            ]
         }
     }
-    ### 주의) pydantic 버전에 따라 형식이 다름
  ```
 
-### 라우트 추가 (todo.py)
-```python
-from model import TodoItem
-# update를 위한 모델을 추가했으니, import
+ # 오류처리
+ 가령, 존재하지 않는 id로 get_single_todo 요청하면 200으로 반환됨.
+ ```json
+{
+  "message": "Todo not found"
+}
+ ```
+- 이런 경우, 404에러를 반환하도록
+### 라우터에 raise 구문 추가
+```py
+    # return {
+    #     "message": "Todo not found",
+    # }
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Todo not found") 
 
-todo_router = APIRouter()
-
-@todo_router.put("/todo/{todo_id}")
-async def update_todo(todo_data: TodoItem, todo_id: int = Path(..., Title="The ID of the todo to update")) -> dict:
-    for todo in todo_list:
-        if todo.id == todo_id:
-            todo.item = todo_data.item
-            return {
-                "message": "Todo updated successfully",
-            }
+```
+# 성공응답 상태코드 변경
+add_todo (post) 성공 시 200코드 출력되는데, 201로 변경
+- 데코레이터에 status_code 파라미터 추가
+```py
+@todo_router.post("/todo", status_code=201)
+#async def create_todo(todo: dict) -> dict: ## 유효성 검증을 위해, 입력값을 모델로 바꿀거임
+async def create_todo(todo: Todo) -> dict:
+    todo_list.append(todo)
     return {
-        "message": "Todo not found",
+        "message": "Todo created successfully",
     }
 ```
 
-# delete_single_todo
-### 라우트 추가
-```python
-todo_router = APIRouter()
-
-@todo_router.delete("/todo/{todo_id}")
-async def delete_single_todo(todo_id: int)-> dict:
-    for index in range(len(todo_list)):
-        todo = todo_list[index]
-        if todo.id == todo_id:
-            todo_list.pop(index)
-            return {
-                "message": "Todo deleted successfully",
-            }
-    return {
-        "message": "Todo not found",
-    }
-
-@todo_router.delete("/todo")
-async def delete_all_todos() -> dict:
-    todo_list.clear()
-    return {
-        "message": "All todos deleted successfully",
-    }
-```
