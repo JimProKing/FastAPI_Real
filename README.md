@@ -225,7 +225,7 @@ async def delete_all_todos() -> dict:
 ```
 
 # 전체 todo.html
-```
+```html
 {% extends "home.html" %}
 
 {% block todo_container %}
@@ -302,4 +302,5 @@ async def delete_all_todos() -> dict:
 </main>
 {% endblock %}
 ```
+#완성
 ![alt text](image-1.png)
