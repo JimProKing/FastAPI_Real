@@ -1,54 +1,48 @@
-# 요청 주고받을 형식을 지정
 from pydantic import BaseModel
+from fastapi import Form
+from typing import List, Optional
 
-from typing import List
+# 불필요하거나 사용 안 하면 삭제 가능
+# class Item(BaseModel):
+#     item: str
+#     status: str
 
-class Item(BaseModel):
-    Item: str
-    status: str
-
-# id, item 둘 다 있음
-class Todo(BaseModel):
-    id: int
-    item: str
-
-    model_config = {
-        "json_schema_extra": {
-            "examples": [  # 여러 개 가능, 단일 예시도 리스트로
-                {
-                    "id": 1,
-                    "item": "예시 할 일"
-                }
-            ]
-        }
-    }
-
-# item만 있음
+# 새 Todo 생성 시 사용할 모델 (폼에서 item만 받음)
 class TodoItem(BaseModel):
     item: str
 
     model_config = {
         "json_schema_extra": {
-            "examples": [
-                {
-                    "item": "예시 할 일"
-                }
-            ]   
+            "examples": [{"item": "새로운 할 일"}]
         }
     }
 
-# 여러 개의 TodoItem을 담는 모델
-class TodoItems(BaseModel):
-    todos: List[TodoItem]
+# 실제 저장하고 반환할 Todo 모델 (id 포함)
+class Todo(BaseModel):
+    id: Optional[int] = None
+    item: str
 
-    # Pydantic v2 방식: model_config 사용
+    model_config = {
+        "json_schema_extra": {
+            "examples": [{"id": 1, "item": "예시 할 일"}]
+        }
+    }
+
+    @classmethod
+    def as_form(cls, item: str = Form(...)):
+        return cls(item=item)  # id는 서버에서 생성
+
+# 여러 Todo 반환용
+class TodoItems(BaseModel):
+    todos: List[Todo]  # id 포함된 Todo 리스트
+
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
                     "todos": [
-                        {"item": "Example schema 1!"},
-                        {"item": "Example schema 2!"}
+                        {"id": 1, "item": "Example schema 1!"},
+                        {"id": 2, "item": "Example schema 2!"}
                     ]
                 }
             ]

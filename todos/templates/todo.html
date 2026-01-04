@@ -1,0 +1,75 @@
+{% extends "home.html" %}
+
+{% block todo_container %}
+<main class="container">  <!-- 오타 수정: containter → container -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <hr>
+            <h2 class="text-center mb-4">My Todo List</h2>
+
+            <!-- Todo 추가 폼 -->
+            <form method="post" class="mb-5">
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        name="item" 
+                        class="form-control form-control-lg" 
+                        placeholder="새로운 할 일 입력..." 
+                        aria-label="Todo Item" 
+                        required
+                    >
+                    <button class="btn btn-primary btn-lg" type="submit">
+                        <i class="fas fa-plus me-2"></i>Add Todo
+                    </button>
+                </div>
+            </form>
+
+            <!-- 전체 Todo 목록 -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">할 일 목록 ({{ todos|length }}개)</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% if todos %}
+                        {% for todo in todos %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <strong>{{ todo.id }}.</strong>
+                                <a href="/todo/{{ todo.id }}" class="text-decoration-none">
+                                    {{ todo.item }}
+                                </a>
+                            </span>
+                            <!-- 삭제 버튼은 나중에 추가 가능 -->
+                            <!-- <button class="btn btn-sm btn-danger">삭제</button> -->
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item text-center text-muted py-5">
+                            <i class="fas fa-clipboard-list fa-3x mb-3"></i>
+                            <p>아직 등록된 할 일이 없어요.<br>위에서 새로운 할 일을 추가해보세요!</p>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <!-- 개별 Todo 상세 보기 ( /todo/{id} 로 접속했을 때만 표시 ) -->
+            {% if todo and todo.id is defined %}
+                <div class="mt-5 card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">상세 보기</h4>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Todo ID:</strong> {{ todo.id }}</p>
+                        <p><strong>Todo Item:</strong> {{ todo.item }}</p>
+                        <a href="/todo" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> 목록으로 돌아가기
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</main>
+{% endblock %}
